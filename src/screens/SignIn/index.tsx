@@ -10,7 +10,7 @@ export function SignIn() {
 
       <Slogan>Vehicle use management</Slogan>
 
-      <Button title='Entrar com Google' />
+      <Button title='Login with Google' />
 
     </Container>
   );
