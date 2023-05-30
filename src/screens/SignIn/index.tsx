@@ -1,9 +1,12 @@
-import { View } from 'react-native';
+import { Container, Slogan, Title } from './styles';
 
-import { styles } from './styles';
+import backgroundImg from '../../assets/background.png'
 
 export function SignIn() {
   return (
-    <View style={styles.container} />
+    <Container source={backgroundImg}>
+      <Title>Fast Fleet</Title>
+      <Slogan>Vehicle use management</Slogan>
+    </Container>
   );
 }
