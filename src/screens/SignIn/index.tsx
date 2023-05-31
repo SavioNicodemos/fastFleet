@@ -8,6 +8,7 @@ import backgroundImg from '../../assets/background.png'
 import { Button } from '../../components/Button';
 
 import { GOOGLE_ANDROID_CLIENT_ID, GOOGLE_IOS_CLIENT_ID } from '@env';
+import { Alert } from 'react-native';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -32,8 +33,14 @@ export function SignIn() {
 
   useEffect(() => {
     if (response?.type === 'success') {
-      if (response.authentication?.idToken) {
-        console.log({ idToken: response.authentication?.idToken })
+      const idToken = response.authentication?.idToken;
+      if (idToken) {
+        fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${idToken}`)
+        .then(response => response.json())
+        .then(console.log);
+      } else {
+        Alert.alert('Sign In', 'Unable to connect to your Google account.')
+        setIsAuthenticating(false);
       }
     }
   }, [response]);
