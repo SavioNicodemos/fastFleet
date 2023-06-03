@@ -1,12 +1,29 @@
 import { Realm } from '@realm/react';
 
+type GenerateProps = {
+  user_id: string;
+  license_plate: string;
+  description: string;
+}
+
 export class Historic extends Realm.Object<Historic> {
-  static generate() {
+  _id!: string;
+  user_id!: string;
+  license_plate!: string;
+  description!: string;
+  status!: string;
+  created_at!: string;
+  updated_at!: string;
+
+  static generate({ description, license_plate, user_id }: GenerateProps) {
     return {
-      id: Math.floor(Math.random() * 999999),
-      date: new Date(),
-      value: 0,
-      type: 'in',
+      _id: new Realm.BSON.UUID(),
+      user_id,
+      license_plate,
+      description,
+      status: 'departure',
+      created_at: new Date(),
+      updated_at: new Date(),
     };
   }
 
