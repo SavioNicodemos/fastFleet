@@ -9,6 +9,7 @@ import { SignIn } from "./src/screens/SignIn";
 import { Loading } from './src/components/Loading';
 import { StatusBar } from 'react-native';
 import { Routes } from './src/routes';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export default function App() {
   const [fontsLoaded] = useFonts({ Roboto_400Regular, Roboto_700Bold })
@@ -21,14 +22,16 @@ export default function App() {
   return (
     <AppProvider id={REALM_APP_ID}>
       <ThemeProvider theme={theme} >
-        <StatusBar
-          barStyle='light-content'
-          backgroundColor='transparent'
-          translucent
-        />
-        <UserProvider fallback={SignIn}>
-          <Routes />
-        </UserProvider>
+        <SafeAreaProvider>
+          <StatusBar
+            barStyle='light-content'
+            backgroundColor='transparent'
+            translucent
+          />
+          <UserProvider fallback={SignIn}>
+            <Routes />
+          </UserProvider>
+        </SafeAreaProvider>
       </ThemeProvider>
     </AppProvider>
   );
