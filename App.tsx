@@ -10,6 +10,7 @@ import { Loading } from './src/components/Loading';
 import { StatusBar } from 'react-native';
 import { Routes } from './src/routes';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { RealmProvider } from './src/libs/realm';
 
 export default function App() {
   const [fontsLoaded] = useFonts({ Roboto_400Regular, Roboto_700Bold })
@@ -29,7 +30,9 @@ export default function App() {
             translucent
           />
           <UserProvider fallback={SignIn}>
-            <Routes />
+            <RealmProvider>
+              <Routes />
+            </RealmProvider>
           </UserProvider>
         </SafeAreaProvider>
       </ThemeProvider>
