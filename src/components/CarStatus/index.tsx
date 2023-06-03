@@ -1,12 +1,13 @@
 import { useTheme } from 'styled-components';
+import { TouchableOpacityProps } from 'react-native';
 import { Container, IconBox, Message, TextHighlight } from './styles';
 import { Key, Car } from 'phosphor-react-native'
 
-type Props = {
+type Props = TouchableOpacityProps & {
   licensePlate?: string;
 }
 
-export function CarStatus({ licensePlate }: Props) {
+export function CarStatus({ licensePlate, ...rest }: Props) {
   const theme = useTheme();
 
   const Icon = licensePlate ? Car : Key;
@@ -14,7 +15,7 @@ export function CarStatus({ licensePlate }: Props) {
   const status = licensePlate ? 'arrival' : 'departure';
 
   return (
-    <Container>
+    <Container {...rest}>
       <IconBox>
         <Icon size={32} color={theme.COLORS.BRAND_LIGHT} />
       </IconBox>
