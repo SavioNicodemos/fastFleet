@@ -23,6 +23,11 @@ export function Departure() {
       licensePlateRef.current?.focus();
       return Alert.alert('Invalid License Plate', 'Please, enter a valid license plate.')
     }
+
+    if (description.trim().length === 0) {
+      descriptionRef.current?.focus();
+      return Alert.alert('Purpose', 'Please inform the purpose of using the vehicle.')
+    }
   }
 
   return (
