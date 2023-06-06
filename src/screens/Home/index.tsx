@@ -16,6 +16,9 @@ export function Home() {
   const historic = useQuery(Historic);
 
   const handleRegisterMovement = () => {
+    if (vehicleInUse?._id) {
+      return navigation.navigate('arrival', { id: vehicleInUse?._id.toString() });
+    }
     navigation.navigate('departure');
   };
 
@@ -39,8 +42,8 @@ export function Home() {
 
       <Content>
         <CarStatus
-        licensePlate={vehicleInUse?.license_plate}
-        onPress={handleRegisterMovement}
+          licensePlate={vehicleInUse?.license_plate}
+          onPress={handleRegisterMovement}
         />
       </Content>
     </Container>
