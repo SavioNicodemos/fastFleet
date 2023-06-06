@@ -33,6 +33,20 @@ export function Home() {
     }
   };
 
+  const fetchHistory = () => {
+    try {
+      const history = historic?.filtered("status = 'arrival' SORT(created_at DESC)");
+      console.log(history);
+    } catch (error) {
+      console.log(error);
+      Alert.alert('History', 'Unable to load the history.');
+    }
+  };
+
+  useEffect(() => {
+    fetchHistory();
+  }, [historic]);
+
   useEffect(() => {
     fetchVehicleInUse();
   }, []);
