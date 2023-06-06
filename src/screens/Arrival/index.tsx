@@ -46,6 +46,26 @@ export const Arrival = () => {
     goBack();
   };
 
+  const handleRegisterArrival = () => {
+    try {
+      if (!historic) {
+        return Alert.alert('Error', 'Unable to get the data to register the the arrival.');
+      }
+
+      realm.write(() => {
+        historic.status = 'arrival';
+        historic.updated_at = new Date();
+      });
+
+      Alert.alert('Success', 'Arrival registered successfully.');
+      goBack();
+
+    } catch (error) {
+      console.log(error);
+      Alert.alert('Error', 'Unable to register the arrival.');
+    }
+  }
+
   return (
     <Container>
       <Header title="Arrival" />
@@ -69,7 +89,7 @@ export const Arrival = () => {
 
         <Footer>
           <ButtonIcon icon={X} onPress={handleRemoveVehicleUsage} />
-          <Button title="Register Arrival" />
+          <Button title="Register Arrival" onPress={handleRegisterArrival} />
         </Footer>
       </Content>
     </Container>
