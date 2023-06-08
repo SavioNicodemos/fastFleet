@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
+import { Realm, useApp } from '@realm/react';
 
 import { Container, Slogan, Title } from './styles';
 
@@ -14,6 +15,8 @@ WebBrowser.maybeCompleteAuthSession();
 
 export function SignIn() {
   const [isAuthenticating, setIsAuthenticating] = useState(false)
+
+  const app = useApp();
 
   const [_, response, googleSignIn] = Google.useAuthRequest({
     androidClientId: GOOGLE_ANDROID_CLIENT_ID,
@@ -35,13 +38,16 @@ export function SignIn() {
     if (response?.type === 'success') {
       const idToken = response.authentication?.idToken;
       if (idToken) {
-        fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${idToken}`)
-        .then(response => response.json())
-        .then(console.log);
+        const credentials = Realm.Credentials.jwt(idToken);
+
+        app.logIn(credentials).catch((error) => {
+          console.error(error);
+          Alert.alert('Sign In', 'Unable to connect to your Google account.');
+        });
       } else {
         Alert.alert('Sign In', 'Unable to connect to your Google account.')
-        setIsAuthenticating(false);
       }
+      setIsAuthenticating(false);
     }
   }, [response]);
 
