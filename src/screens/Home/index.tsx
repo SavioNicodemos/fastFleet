@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Alert } from 'react-native';
+import { Alert, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import dayjs from 'dayjs';
 
 import { HomeHeader } from '../../components/HomeHeader';
 import { CarStatus } from '../../components/CarStatus';
+import { HistoricCard, HistoricCardProps } from '../../components/HistoricCard';
 import { useQuery, useRealm } from '../../libs/realm';
 import { Historic } from '../../libs/realm/schemas/Historic';
 
-import { Container, Content } from './styles';
-import { HistoricCard } from '../../components/HistoricCard';
+import { Container, Content, Label, Title } from './styles';
 
 export function Home() {
   const [vehicleInUse, setVehicleInUse] = useState<Historic | null>(null);
+  const [history, setHistory] = useState<HistoricCardProps[]>();
   const navigation = useNavigation();
 
   const realm = useRealm();
@@ -37,7 +39,17 @@ export function Home() {
   const fetchHistory = () => {
     try {
       const history = historic?.filtered("status = 'arrival' SORT(created_at DESC)");
-      console.log(history);
+
+      const formattedHistory = history?.map((item: Historic) => {
+        return({
+          id: item._id.toString(),
+          licensePlate: item.license_plate,
+          isSync: false,
+          created: dayjs(item.created_at).format('[Departure] DD/MM/YYYY [at] HH:mm'),
+        });
+      });
+
+      setHistory(formattedHistory);
     } catch (error) {
       console.log(error);
       Alert.alert('History', 'Unable to load the history.');
@@ -68,7 +80,19 @@ export function Home() {
           onPress={handleRegisterMovement}
         />
 
-        <HistoricCard data={{ created: '20/04', licensePlate: 'XXX1234', isSync: false }} />
+        <Title>Historic</Title>
+
+        <FlatList
+          data={history}
+          keyExtractor={item => item.id}
+          renderItem={({ item }) => <HistoricCard data={item} />}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 100 }}
+          ListEmptyComponent={(
+            <Label>No vehicle used yet</Label>
+          )}
+        />
+
       </Content>
     </Container>
   )
