@@ -90,13 +90,13 @@ export const Arrival = () => {
           {historic?.description}
         </Description>
 
+      </Content>
         {historic?.status === 'departure' ? (
           <Footer>
             <ButtonIcon icon={X} onPress={handleRemoveVehicleUsage} />
             <Button title="Register Arrival" onPress={handleRegisterArrival} />
           </Footer>
         ) : null}
-      </Content>
     </Container>
   )
 };
