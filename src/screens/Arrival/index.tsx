@@ -21,6 +21,9 @@ export const Arrival = () => {
 
   const historic = useObject(Historic, new BSON.UUID(id));
   const realm = useRealm();
+
+  const title = historic?.status === 'departure' ? 'Arrival' : 'Details';
+
   const { goBack } = useNavigation();
 
   const handleRemoveVehicleUsage = () => {
@@ -68,7 +71,7 @@ export const Arrival = () => {
 
   return (
     <Container>
-      <Header title="Arrival" />
+      <Header title={title} />
 
       <Content>
         <Label>
@@ -87,10 +90,12 @@ export const Arrival = () => {
           {historic?.description}
         </Description>
 
-        <Footer>
-          <ButtonIcon icon={X} onPress={handleRemoveVehicleUsage} />
-          <Button title="Register Arrival" onPress={handleRegisterArrival} />
-        </Footer>
+        {historic?.status === 'departure' ? (
+          <Footer>
+            <ButtonIcon icon={X} onPress={handleRemoveVehicleUsage} />
+            <Button title="Register Arrival" onPress={handleRegisterArrival} />
+          </Footer>
+        ) : null}
       </Content>
     </Container>
   )
