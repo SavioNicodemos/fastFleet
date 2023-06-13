@@ -10,14 +10,16 @@ import { useQuery, useRealm } from '../../libs/realm';
 import { Historic } from '../../libs/realm/schemas/Historic';
 
 import { Container, Content, Label, Title } from './styles';
+import { useUser } from '@realm/react';
 
 export function Home() {
   const [vehicleInUse, setVehicleInUse] = useState<Historic | null>(null);
   const [history, setHistory] = useState<HistoricCardProps[]>();
-  const navigation = useNavigation();
 
+  const navigation = useNavigation();
   const realm = useRealm();
   const historic = useQuery(Historic);
+  const user = useUser();
 
   const handleRegisterMovement = () => {
     if (vehicleInUse?._id) {
@@ -77,6 +79,14 @@ export function Home() {
       }
     };
   }, []);
+
+  useEffect(() => {
+    realm.subscriptions.update((mutableSubs, realm) => {
+      const historicByUserQuery = realm.objects('Historic').filtered(`user_id = '${user!.id}'`);
+
+      mutableSubs.add(historicByUserQuery, { name: 'historic_by_user' });
+    })
+  }, [realm]);
 
   return (
     <Container>
