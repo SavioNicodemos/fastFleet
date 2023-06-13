@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Alert, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import dayjs from 'dayjs';
+import Toast from 'react-native-toast-message';
 
 import { HomeHeader } from '../../components/HomeHeader';
 import { CarStatus } from '../../components/CarStatus';
@@ -71,6 +72,11 @@ export function Home() {
     if (percentage === 100) {
       await saveLastSyncTimestamp()
       fetchHistory();
+
+      Toast.show({
+        type: 'info',
+        text1: 'The sync was completed successfully.',
+      });
     }
   }
 
