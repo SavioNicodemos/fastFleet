@@ -11,6 +11,7 @@ import { Historic } from '../../libs/realm/schemas/Historic';
 
 import { Container, Content, Label, Title } from './styles';
 import { useUser } from '@realm/react';
+import { getLastSyncTimestamp, saveLastSyncTimestamp } from '../../libs/asyncStorage/syncStorage.ts';
 
 export function Home() {
   const [vehicleInUse, setVehicleInUse] = useState<Historic | null>(null);
@@ -38,15 +39,17 @@ export function Home() {
     }
   };
 
-  const fetchHistory = () => {
+  const fetchHistory = async () => {
     try {
       const history = historic?.filtered("status = 'arrival' SORT(created_at DESC)");
+
+      const lastSync = await getLastSyncTimestamp();
 
       const formattedHistory = history?.map((item: Historic) => {
         return({
           id: item._id.toString(),
           licensePlate: item.license_plate,
-          isSync: false,
+          isSync: lastSync > item.updated_at!.getTime(),
           created: dayjs(item.created_at).format('[Departure] DD/MM/YYYY [at] HH:mm'),
         });
       });
@@ -61,6 +64,15 @@ export function Home() {
   const handleHistoricDetails = (id: string) => {
     navigation.navigate('arrival', { id });
   };
+
+  const progressNotification = async (transferred: number, transferable: number) => {
+    const percentage = (transferred/transferable) * 100;
+
+    if (percentage === 100) {
+      await saveLastSyncTimestamp()
+      fetchHistory();
+    }
+  }
 
   useEffect(() => {
     fetchHistory();
@@ -87,6 +99,24 @@ export function Home() {
       mutableSubs.add(historicByUserQuery, { name: 'historic_by_user' });
     })
   }, [realm]);
+
+  useEffect(() => {
+    const syncSession = realm.syncSession;
+
+    if(!syncSession) {
+      return;
+    }
+
+    syncSession.addProgressNotification(
+      Realm.ProgressDirection.Upload,
+      Realm.ProgressMode.ReportIndefinitely,
+      progressNotification
+    )
+
+    return () => {
+      syncSession.removeProgressNotification(progressNotification);
+    }
+  },[]);
 
   return (
     <Container>
