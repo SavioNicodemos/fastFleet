@@ -13,10 +13,13 @@ import { Historic } from '../../libs/realm/schemas/Historic';
 import { Container, Content, Label, Title } from './styles';
 import { useUser } from '@realm/react';
 import { getLastSyncTimestamp, saveLastSyncTimestamp } from '../../libs/asyncStorage/syncStorage.ts';
+import { TopMessage } from '../../components/TopMessage';
+import { CloudArrowUp } from 'phosphor-react-native';
 
 export function Home() {
   const [vehicleInUse, setVehicleInUse] = useState<Historic | null>(null);
   const [history, setHistory] = useState<HistoricCardProps[]>();
+  const [percentageToSync, setPercentageToSync] = useState<string | null>(null);
 
   const navigation = useNavigation();
   const realm = useRealm();
@@ -47,7 +50,7 @@ export function Home() {
       const lastSync = await getLastSyncTimestamp();
 
       const formattedHistory = history?.map((item: Historic) => {
-        return({
+        return ({
           id: item._id.toString(),
           licensePlate: item.license_plate,
           isSync: lastSync > item.updated_at!.getTime(),
@@ -67,11 +70,16 @@ export function Home() {
   };
 
   const progressNotification = async (transferred: number, transferable: number) => {
-    const percentage = (transferred/transferable) * 100;
+    const percentage = (transferred / transferable) * 100;
+
+    if (percentage < 100) {
+      setPercentageToSync(`${percentage.toFixed(0)}% synced`);
+    }
 
     if (percentage === 100) {
       await saveLastSyncTimestamp()
-      fetchHistory();
+      await fetchHistory();
+      setPercentageToSync(null);
 
       Toast.show({
         type: 'info',
@@ -92,7 +100,7 @@ export function Home() {
     realm.addListener('change', () => fetchVehicleInUse());
 
     return () => {
-      if(realm && !realm.isClosed) {
+      if (realm && !realm.isClosed) {
         realm.removeListener('change', () => fetchVehicleInUse())
       }
     };
@@ -109,7 +117,7 @@ export function Home() {
   useEffect(() => {
     const syncSession = realm.syncSession;
 
-    if(!syncSession) {
+    if (!syncSession) {
       return;
     }
 
@@ -122,10 +130,15 @@ export function Home() {
     return () => {
       syncSession.removeProgressNotification(progressNotification);
     }
-  },[]);
+  }, []);
 
   return (
     <Container>
+      {
+        percentageToSync && (
+          <TopMessage title={percentageToSync} icon={CloudArrowUp} />
+        )
+      }
       <HomeHeader />
 
       <Content>
