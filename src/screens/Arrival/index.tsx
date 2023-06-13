@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { X } from 'phosphor-react-native';
 import { BSON } from 'realm';
@@ -7,15 +8,18 @@ import { Header } from '../../components/Header';
 import { Button } from '../../components/Button';
 import { ButtonIcon } from '../../components/ButtonIcon';
 
-import { Container, Content, Description, Footer, Label, LicensePlate } from './styles';
+import { Container, Content, Description, Footer, Label, LicensePlate, AsyncMessage } from './styles';
 import { useObject, useRealm } from '../../libs/realm';
 import { Historic } from '../../libs/realm/schemas/Historic';
+import { getLastSyncTimestamp } from '../../libs/asyncStorage/syncStorage.ts';
 
 type RouteParams = {
   id: string;
 };
 
 export const Arrival = () => {
+  const [dataNotSynced, setDataNotSynced] = useState(false);
+
   const route = useRoute();
   const { id } = route.params as RouteParams;
 
@@ -69,6 +73,11 @@ export const Arrival = () => {
     }
   }
 
+  useEffect(() => {
+    getLastSyncTimestamp()
+      .then(lastSync => setDataNotSynced(historic!.updated_at.getTime() > lastSync));
+  }, [])
+
   return (
     <Container>
       <Header title={title} />
@@ -91,12 +100,20 @@ export const Arrival = () => {
         </Description>
 
       </Content>
-        {historic?.status === 'departure' ? (
-          <Footer>
-            <ButtonIcon icon={X} onPress={handleRemoveVehicleUsage} />
-            <Button title="Register Arrival" onPress={handleRegisterArrival} />
-          </Footer>
-        ) : null}
+      {historic?.status === 'departure' ? (
+        <Footer>
+          <ButtonIcon icon={X} onPress={handleRemoveVehicleUsage} />
+          <Button title="Register Arrival" onPress={handleRegisterArrival} />
+        </Footer>
+      ) : null}
+
+
+      {
+        dataNotSynced &&
+        <AsyncMessage>
+        Sync of {historic?.status === 'departure' ? "departure" : "arrival"} pending.
+        </AsyncMessage>
+      }
     </Container>
   )
 };
