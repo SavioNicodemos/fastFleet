@@ -1,8 +1,9 @@
 import { useUser } from '@realm/react';
 import { useNavigation } from '@react-navigation/native';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ScrollView, TextInput, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { useForegroundPermissions } from 'expo-location';
 
 import { Button } from '../../components/Button';
 import { Header } from '../../components/Header';
@@ -12,12 +13,14 @@ import { useRealm } from '../../libs/realm';
 import { Historic } from '../../libs/realm/schemas/Historic';
 import { licensePlateValidate } from '../../utils/licensePlateValidate';
 
-import { Container, Content } from './styles';
+import { Container, Content, Message } from './styles';
 
 export function Departure() {
   const [description, setDescription] = useState('');
   const [licensePlate, setLicensePlate] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
+
+  const [locationForegroundPermission, requestLocationForegroundPermission] = useForegroundPermissions();
 
   const realm = useRealm();
   const user = useUser();
@@ -57,6 +60,22 @@ export function Departure() {
     } finally {
       setIsRegistering(false);
     }
+  }
+
+  useEffect(() => {
+    requestLocationForegroundPermission();
+  }, []);
+
+  if(!locationForegroundPermission?.granted) {
+    return(
+      <Container>
+        <Header title='Departure' />
+        <Message>
+          You need to grant location permission to register a departure.
+          Please go to your device settings and grant the permission.
+        </Message>
+      </Container>
+    )
   }
 
   return (
