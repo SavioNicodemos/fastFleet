@@ -14,6 +14,8 @@ import { Button } from '../../components/Button';
 import { Header } from '../../components/Header';
 import { LicensePlateInput } from '../../components/LicensePlateInput';
 import { TextAreaInput } from '../../components/TextAreaInput';
+import { Loading } from '../../components/Loading';
+
 import { useRealm } from '../../libs/realm';
 import { Historic } from '../../libs/realm/schemas/Historic';
 import { licensePlateValidate } from '../../utils/licensePlateValidate';
@@ -25,6 +27,7 @@ export function Departure() {
   const [description, setDescription] = useState('');
   const [licensePlate, setLicensePlate] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
+  const [isLoadingLocation, setIsLoadingLocation] = useState(true);
 
   const [locationForegroundPermission, requestLocationForegroundPermission] = useForegroundPermissions();
 
@@ -80,16 +83,22 @@ export function Departure() {
       accuracy: LocationAccuracy.High,
       timeInterval: 1000,
     }, (location) => {
-      getAddressLocation(location.coords).then((address) => {
-        console.log(address);
-      });
+      getAddressLocation(location.coords)
+        .then((address) => {
+          console.log(address);
+        })
+        .finally(() => setIsLoadingLocation(false));
     }).then((response) => subscription = response);
 
-    return () => subscription?.remove();
+    return () => {
+      if (subscription) {
+        subscription?.remove()
+      }
+    };
   }, [locationForegroundPermission]);
 
-  if(!locationForegroundPermission?.granted) {
-    return(
+  if (!locationForegroundPermission?.granted) {
+    return (
       <Container>
         <Header title='Departure' />
         <Message>
@@ -97,6 +106,12 @@ export function Departure() {
           Please go to your device settings and grant the permission.
         </Message>
       </Container>
+    )
+  }
+
+  if (isLoadingLocation) {
+    return (
+      <Loading />
     )
   }
 
