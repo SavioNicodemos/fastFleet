@@ -10,6 +10,8 @@ import {
   LocationSubscription
 } from 'expo-location';
 
+import { CarSimple } from 'phosphor-react-native';
+
 import { Button } from '../../components/Button';
 import { Header } from '../../components/Header';
 import { LicensePlateInput } from '../../components/LicensePlateInput';
@@ -129,6 +131,7 @@ export function Departure() {
             {
               currentAddress &&
               <LocationInfo
+                icon={CarSimple}
                 label='Current location'
                 description={currentAddress}
               />
