@@ -7,7 +7,8 @@ import {
   LocationAccuracy,
   useForegroundPermissions,
   watchPositionAsync,
-  LocationSubscription
+  LocationSubscription,
+  LocationObjectCoords
 } from 'expo-location';
 
 import { CarSimple } from 'phosphor-react-native';
@@ -18,6 +19,7 @@ import { LicensePlateInput } from '../../components/LicensePlateInput';
 import { TextAreaInput } from '../../components/TextAreaInput';
 import { Loading } from '../../components/Loading';
 import { LocationInfo } from '../../components/LocationInfo';
+import { Map } from '../../components/Map';
 
 import { useRealm } from '../../libs/realm';
 import { Historic } from '../../libs/realm/schemas/Historic';
@@ -32,6 +34,7 @@ export function Departure() {
   const [isRegistering, setIsRegistering] = useState(false);
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
   const [currentAddress, setCurrentAddress] = useState<string | null>(null)
+  const [currentCoords, setCurrentCoords] = useState<LocationObjectCoords | null>(null)
 
   const [locationForegroundPermission, requestLocationForegroundPermission] = useForegroundPermissions();
 
@@ -87,6 +90,8 @@ export function Departure() {
       accuracy: LocationAccuracy.High,
       timeInterval: 1000,
     }, (location) => {
+      setCurrentCoords(location.coords);
+
       getAddressLocation(location.coords)
         .then((address) => {
           if (address) {
@@ -127,6 +132,9 @@ export function Departure() {
 
       <KeyboardAwareScrollView extraHeight={100}>
         <ScrollView>
+          {currentCoords && (
+            <Map coordinates={[currentCoords]} />
+          )}
           <Content>
             {
               currentAddress &&
