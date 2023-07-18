@@ -129,11 +129,10 @@ export function Departure() {
   return (
     <Container>
       <Header title='Departure' />
-
       <KeyboardAwareScrollView extraHeight={100}>
         <ScrollView>
           {currentCoords && (
-            <Map coordinates={[currentCoords]} />
+            <Map coordinates={[currentCoords, {latitude: 41.1483, longitude: -8.6075}]} />
           )}
           <Content>
             {
