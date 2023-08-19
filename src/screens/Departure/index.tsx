@@ -57,6 +57,10 @@ export function Departure() {
         return Alert.alert('Purpose', 'Please inform the purpose of using the vehicle.')
       }
 
+      if(!currentCoords?.latitude && !currentCoords?.longitude) {
+        return Alert.alert('Location', 'Was not possible to get the current location. Try again.')
+      }
+
       setIsRegistering(true);
 
       realm.write(() => {
