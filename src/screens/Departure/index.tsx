@@ -28,6 +28,7 @@ import { licensePlateValidate } from '../../utils/licensePlateValidate';
 import { getAddressLocation } from '../../utils/getAddressLocation';
 
 import { Container, Content, Message } from './styles';
+import { startLocationTask } from '../../tasks/backgroundLocationtask';
 
 export function Departure() {
   const [description, setDescription] = useState('');
@@ -70,6 +71,8 @@ export function Departure() {
         setIsRegistering(false);
         return Alert.alert('Location', 'You need to grant background location permission to register a departure. In the app permissions configuration you need to select "Allow all the time".')
       }
+
+      await startLocationTask();
 
       realm.write(() => {
         realm.create('Historic', Historic.generate({

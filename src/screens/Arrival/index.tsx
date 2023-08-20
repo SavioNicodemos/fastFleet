@@ -12,6 +12,7 @@ import { Container, Content, Description, Footer, Label, LicensePlate, AsyncMess
 import { useObject, useRealm } from '../../libs/realm';
 import { Historic } from '../../libs/realm/schemas/Historic';
 import { getLastSyncTimestamp } from '../../libs/asyncStorage/syncStorage.ts';
+import { stopLocationTask } from '../../tasks/backgroundLocationtask';
 
 type RouteParams = {
   id: string;
@@ -53,11 +54,13 @@ export const Arrival = () => {
     goBack();
   };
 
-  const handleRegisterArrival = () => {
+  const handleRegisterArrival = async () => {
     try {
       if (!historic) {
         return Alert.alert('Error', 'Unable to get the data to register the the arrival.');
       }
+
+      await stopLocationTask();
 
       realm.write(() => {
         historic.status = 'arrival';
