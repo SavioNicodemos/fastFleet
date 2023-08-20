@@ -19,6 +19,9 @@ module.exports = {
     assetBundlePatterns: ["**/*"],
     ios: {
       supportsTablet: true,
+      infoPlist: {
+        UIBackgroundModes: ["location"],
+      },
       config: {
         googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
       },
@@ -29,6 +32,11 @@ module.exports = {
         backgroundColor: "#202024",
       },
       package: "com.savionicodemos.fastfleet",
+      permissions: [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+      ],
       config: {
         googleMaps: {
           apiKey: process.env.GOOGLE_MAPS_API_KEY,

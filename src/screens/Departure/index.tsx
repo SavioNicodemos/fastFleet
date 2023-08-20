@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import { ScrollView, TextInput, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import {
-  LocationAccuracy,
   useForegroundPermissions,
+  requestBackgroundPermissionsAsync,
+  LocationAccuracy,
   watchPositionAsync,
   LocationSubscription,
   LocationObjectCoords
@@ -27,6 +28,7 @@ import { licensePlateValidate } from '../../utils/licensePlateValidate';
 import { getAddressLocation } from '../../utils/getAddressLocation';
 
 import { Container, Content, Message } from './styles';
+import { startLocationTask } from '../../tasks/backgroundLocationtask';
 
 export function Departure() {
   const [description, setDescription] = useState('');
@@ -45,7 +47,7 @@ export function Departure() {
   const licensePlateRef = useRef<TextInput>(null);
   const descriptionRef = useRef<TextInput>(null);
 
-  const handleDepartureRegister = () => {
+  const handleDepartureRegister = async () => {
     try {
       if (!licensePlateValidate(licensePlate)) {
         licensePlateRef.current?.focus();
@@ -57,7 +59,20 @@ export function Departure() {
         return Alert.alert('Purpose', 'Please inform the purpose of using the vehicle.')
       }
 
+      if(!currentCoords?.latitude && !currentCoords?.longitude) {
+        return Alert.alert('Location', 'Was not possible to get the current location. Try again.')
+      }
+
       setIsRegistering(true);
+
+      const backgroundPermission = await requestBackgroundPermissionsAsync();
+
+      if (!backgroundPermission.granted) {
+        setIsRegistering(false);
+        return Alert.alert('Location', 'You need to grant background location permission to register a departure. In the app permissions configuration you need to select "Allow all the time".')
+      }
+
+      await startLocationTask();
 
       realm.write(() => {
         realm.create('Historic', Historic.generate({
